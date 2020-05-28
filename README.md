@@ -26,7 +26,7 @@ optimizer = torch.optim.Adam([
     {'params': multi_loss.noise_params}], lr = 0.001)
 
     
-lambda1 = lambda ep: 1 / (2**(ep+11)//10)
+lambda1 = lambda ep: 1 / (2**((ep+11)//10))
 lambda2 = lambda ep: 1
 scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=[lambda1, lambda2])
 ```
