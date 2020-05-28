@@ -15,7 +15,7 @@ Simply, we weight each regression loss by ![\frac{1}{2\sigma^2}](https://render.
 
 ## Usage
 
-The model `MultiNoiseLoss()` is implemented as a torch module. A typical use case is 
+The model `MultiNoiseLoss()` is implemented as a torch module. A typical use case (with two classification losses, for example) is 
 ```
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model = Net().to(device)  ## Net is some torch module, e.g. with an mlp layer Net.mlp
@@ -32,3 +32,16 @@ scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=[lambda1, lam
 ```
 
 N.B. We have to include the dynamic weighting parameters in the optimizer, so that they are also updated, as well as handling their learning rate. We could of course increment that LR in the steps as the rest of the model, but this may not be desirable, and the LR of the weighting really depends on the situation. Anecdotally: The learning rate for the dynamic weights is not so important, and it can stay at LR=1e-2 and seems to work fine. 
+
+The loss is then called in the training loop as
+```
+...
+loss_1 = cross_entropy(predictions_1, targets_1)
+loss_2 = cross_entropy(predictions_2, targets_2)
+
+loss = multi_loss([loss_1, loss_2])
+loss.backward()
+optimizer.step()
+...
+```
+
