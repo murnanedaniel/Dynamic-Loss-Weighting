@@ -4,7 +4,14 @@ A small collection of tools to manage deep learning with multiple sources of los
 
 ## Context
 
-Given $$e^5$$ 
+Many deep learning situations may call for handling multiple sources of loss. These may be from independent tasks, or for loss from different parts of the same network. The naive solution is to simple take a sum ![\mathcal{L}=\mathcal{L}_1+...+\mathcal{L}_n](https://render.githubusercontent.com/render/math?math=%5Cmathcal%7BL%7D%3D%5Cmathcal%7BL%7D_1%2B...%2B%5Cmathcal%7BL%7D_n), however there's no reason to think that an equal weighting of losses should be optimal. The paper by Kendall, et al., derives a formula for combining losses from regression tasks and classification tasks in terms of "noise parameters" ![\sigma_i](https://render.githubusercontent.com/render/math?math=%5Csigma_i), which are to be variables in the loss minimisation. These are essentially a way to regularise the loss as:
+
+![\mathcal{L}=\frac{1}{2(\sigma^{reg.}_1)^2}\mathcal{L}^{reg.}_1 + \frac{1}{2(\sigma^{reg.}_2)^2}\mathcal{L}^{reg.}_2 + ... + \frac{1}{(\sigma^{class.}_1)^2}\mathcal{L}^{class.}_1 + \frac{1}{(\sigma^{class.}_2)^2}\mathcal{L}^{class.}_2 + ... + \log{\sigma^{reg.}_1} + \log{\sigma^{reg.}_2} + ... + \log{\sigma^{class.}_1} + \log{\sigma^{class.}_2} + ...](https://render.githubusercontent.com/render/math?math=%5Cmathcal%7BL%7D%3D%5Cfrac%7B1%7D%7B2(%5Csigma%5E%7Breg.%7D_1)%5E2%7D%5Cmathcal%7BL%7D%5E%7Breg.%7D_1%20%2B%20%5Cfrac%7B1%7D%7B2(%5Csigma%5E%7Breg.%7D_2)%5E2%7D%5Cmathcal%7BL%7D%5E%7Breg.%7D_2%20%2B%20...%20%2B%20%5Cfrac%7B1%7D%7B(%5Csigma%5E%7Bclass.%7D_1)%5E2%7D%5Cmathcal%7BL%7D%5E%7Bclass.%7D_1%20%2B%20%5Cfrac%7B1%7D%7B(%5Csigma%5E%7Bclass.%7D_2)%5E2%7D%5Cmathcal%7BL%7D%5E%7Bclass.%7D_2%20%2B%20...%20%2B%20%5Clog%7B%5Csigma%5E%7Breg.%7D_1%7D%20%2B%20%5Clog%7B%5Csigma%5E%7Breg.%7D_2%7D%20%2B%20...%20%2B%20%5Clog%7B%5Csigma%5E%7Bclass.%7D_1%7D%20%2B%20%5Clog%7B%5Csigma%5E%7Bclass.%7D_2%7D%20%2B%20...)
+
+Simply, we weight each regression loss by ![\frac{1}{2\sigma^2}](https://render.githubusercontent.com/render/math?math=%5Cfrac%7B1%7D%7B2%5Csigma%5E2%7D) and each classification loss by ![\frac{1}{\sigma^2}](https://render.githubusercontent.com/render/math?math=%5Cfrac%7B1%7D%7B%5Csigma%5E2%7D) and add a regulariser of ![\log{\sigma}](https://render.githubusercontent.com/render/math?math=%5Clog%7B%5Csigma%7D). Without this, the optimiser would take all ![\sigma_i\rightarrow\infty](https://render.githubusercontent.com/render/math?math=%5Csigma_i%5Crightarrow%5Cinfty). 
+
+
+
 
 ## Usage
 
