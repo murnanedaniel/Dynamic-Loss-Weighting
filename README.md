@@ -4,13 +4,17 @@ A small collection of tools to manage deep learning with multiple sources of los
 
 ## Context
 
-Many deep learning situations may call for handling multiple sources of loss. These may be from independent tasks, or for loss from different parts of the same network. The naive solution is to simple take a sum $\mathcal{L}=\mathcal{L}_1+...+\mathcal{L}_n$, however there's no reason to think that an equal weighting of losses should be optimal. A dominant approach of works is combining multi objective losses with weighted linear sum of the losses for each individual task, $\mathcal{L} = \sum_{i=1}^{n} w_i \mathcal{L}_i$, where $w_i$ are The paper by Kendall, et al., derives a formula for combining losses from regression tasks and classification tasks in terms of learnable "noise parameters" $\sigma_i$, which are to be variables in the loss minimisation. These are essentially a way to regularise the loss as:
+Many deep learning situations may call for handling multiple sources of loss. These may be from independent tasks, or for loss from different parts of the same network. The naive solution is to simple take a sum $\mathcal{L}=\mathcal{L}_1 + \ldots + \mathcal{L}_n$, however there's no reason to think that an equal weighting of losses should be optimal.
 
-$$\mathcal{L}=\frac{1}{2(\sigma^{reg.}_1)^2}\mathcal{L}^{reg.}_1 + \frac{1}{2(\sigma^{reg.}_2)^2}\mathcal{L}^{reg.}_2 + \ldots + \frac{1}{(\sigma^{class.}_1)^2}\mathcal{L}^{class.}_1 + \frac{1}{(\sigma^{class.}_2)^2}\mathcal{L}^{class.}_2 + \ldots + \log{\sigma^{reg.}_1} + \log{\sigma^{reg.}_2} + \ldots + \log{\sigma^{class.}_1} + \log{\sigma^{class.}_2} + \ldots $$
+A dominant approach of works is combining multi objective losses with weighted linear sum of the losses for each individual task, $\mathcal{L} = \sum_{i=1}^{n} w_i \mathcal{L}_i$, where $w_i$ are learnable parameters. The paper by Kendall, et al., derives a formula for combining losses from regression tasks and classification tasks in terms of learnable "noise parameters" $\sigma_i$, which are to be variables in the loss minimisation. These are essentially a way to regularise the loss as:
+
+$$ \mathcal{L}=\frac{1}{2(\sigma^{reg.}_1)^2}\mathcal{L}^{reg.}_1 + \frac{1}{2(\sigma^{reg.}_2)^2}\mathcal{L}^{reg.}_2 + \ldots + \frac{1}{(\sigma^{class.}_1)^2}\mathcal{L}^{class.}_1 + \frac{1}{(\sigma^{class.}_2)^2}\mathcal{L}^{class.}_2 + \ldots + \log{\sigma^{reg.}_1} + \log{\sigma^{reg.}_2} + \ldots + \log{\sigma^{class.}_1} + \log{\sigma^{class.}_2} + \ldots $$
 
 Simply, we weight each regression loss by $\frac{1}{2\sigma^2}$ and each classification loss by $\frac{1}{\sigma^2}$. Without this, the optimiser would take all $\sigma_i \rightarrow \infty$. 
 
-Our implementation adapts Kendall's loss weighting approach using learnable parameters $\eta_i$, where for each loss term $\matchal{L}_i$, $\text{loss\_component}_i = \frac{1}{\sqrt{\eta_i}} \mathcal{L}_i + \log(\eta_i)$ and total loss $$\mathcal{L} = \sum_{i=1}^{k} \left\[ \frac{1}{\sqrt{\eta_i}} \cdot \mathcal{L}_i + \log(\eta_i) \right\]$$
+Our implementation adapts Kendall's loss weighting approach using learnable parameters $\eta_i$, where for each loss term $\mathcal{L}_i$, $\text{loss}_i = \frac{1}{\sqrt{\eta_i}} \mathcal{L}_i + \log(\eta_i)$ and total loss 
+ 
+$$\mathcal{L} = \sum_{i=1}^{k} \left\[ \frac{1}{\sqrt{\eta_i}} \cdot \mathcal{L}_i + \log(\eta_i) \right\]$$
 
 This allows optimal learning of weights for any type of loss in a multi-task learning setup, without predefining specific treatment for regression or classification tasks.
 
@@ -50,5 +54,5 @@ optimizer.step()
 
 ## Notes
 
-In the original paper, regression tasks are weighted by $\frac{1}{2\sigma_i^2}$ and include a $\log(sigma_i)$ term. 
+In the original paper, regression tasks are weighted by $\frac{1}{2\sigma_i^2}$ and include a $\log(\sigma_i)$ term. 
 Our implementation does not apply the factor of $0.5$ (which is directed for regression tasks) but can be adapted to do so.
