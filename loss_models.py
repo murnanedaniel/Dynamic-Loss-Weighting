@@ -6,12 +6,12 @@ from utils.utils import get_device
 class VanillaMultiLoss(nn.Module):
     def __init__(self, n_losses: int): 
         super().__init__()
-        self.loss_term_scaling = nn.Parameter(torch.ones(n_losses), requires_grad=True)
+        self.loss_term_scaling = nn.Parameter(torch.ones(n_losses, device=get_device()))
 
     def forward(self, losses: list) -> torch.tensor:
         total_loss = 0
         for i, loss in enumerate(losses):
-            scaling = self.loss_term_scaling[i].item()  # get the scalar value of the scaling term
+            scaling = self.loss_term_scaling[i]
             
             loss = loss.squeeze() # ensures loss is scalar (shape []); handling loss tensor shapes like [1,1]
             
@@ -25,7 +25,7 @@ class MultiNoiseLoss(nn.Module):
     """
     def __init__(self, n_losses: int):
         super(MultiNoiseLoss, self).__init__()
-        self.noise_params = torch.rand(n_losses, device=get_device(), requires_grad=True)
+        self.noise_params = nn.Parameter(torch.rand(n_losses, device=get_device()))
     
     def forward(self, losses: list) -> torch.tensor:
         """
