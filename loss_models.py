@@ -12,9 +12,7 @@ class VanillaMultiLoss(nn.Module):
         total_loss = 0
         for i, loss in enumerate(losses):
             scaling = self.loss_term_scaling[i]
-            
-            loss = loss.squeeze() # ensures loss is scalar (shape []); handling loss tensor shapes like [1,1]
-            
+
             total_loss += scaling * loss
  
         return total_loss
@@ -38,7 +36,6 @@ class MultiNoiseLoss(nn.Module):
         total_loss = 0
         for i, loss in enumerate(losses):
             
-            loss = loss.squeeze() # ensures loss is scalar (shape []); handling loss tensor shapes like [1,1]
             total_loss += (1/torch.square(self.noise_params[i]))*loss + torch.log(self.noise_params[i])
         
         return total_loss
