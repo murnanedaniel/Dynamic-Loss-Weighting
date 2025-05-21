@@ -11,19 +11,19 @@ class VanillaMultiLoss(nn.Module):
     def forward(self, losses: list) -> torch.tensor:
         total_loss = 0
         for i, loss in enumerate(losses):
-            scaling = self.loss_term_scaling[i]
+            scaling = F.softplus(self.loss_term_scaling[i])  # ensure > 0
 
             total_loss += scaling * loss
  
         return total_loss
- 
+
 class MultiNoiseLoss(nn.Module):
     """
     Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics (Kendall et al; CVPR 2018).
     """
     def __init__(self, n_losses: int):
         super(MultiNoiseLoss, self).__init__()
-        self.noise_params = nn.Parameter(torch.rand(n_losses, device=get_device()))
+        self.raw_noise_params = nn.Parameter(torch.randn(n_losses, device=get_device())) # learnable normal noise
     
     def forward(self, losses: list) -> torch.tensor:
         """
@@ -35,7 +35,7 @@ class MultiNoiseLoss(nn.Module):
         """
         total_loss = 0
         for i, loss in enumerate(losses):
-            
-            total_loss += (1/torch.square(self.noise_params[i]))*loss + torch.log(self.noise_params[i])
-        
+            noise_i = F.softplus(self.raw_noise_params[i]) + 1e-6  # ensure > 0
+            total_loss += (1 / noise_i ** 2) * loss + torch.log(noise_i)
+
         return total_loss
